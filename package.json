@@ -1,0 +1,31 @@
+{
+  "name": "obex-integration-tool",
+  "version": "0.1.0",
+  "description": "OBEX Integration Tool for DevOps - A VS Code Extension with Enhanced GitHub Focus",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "build": "npm run build:shared && npm run build:server && npm run build:client",
+    "build:shared": "cd shared && npm run build",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run watch",
+    "test": "npm run test:shared && npm run test:server && npm run test:client",
+    "test:shared": "cd shared && npm run test",
+    "test:server": "cd server && npm run test",
+    "test:client": "cd client && npm run test",
+    "lint": "npm run lint:shared && npm run lint:server && npm run lint:client",
+    "lint:shared": "cd shared && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "lint:client": "cd client && npm run lint",
+    "clean": "rimraf */dist */out"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
+  }
+}

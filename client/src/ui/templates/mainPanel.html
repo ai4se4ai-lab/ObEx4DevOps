@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBEX Insights</title>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            padding: 20px;
+            color: var(--vscode-foreground);
+            line-height: 1.5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--vscode-panel-border);
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .logo {
+            width: 32px;
+            height: 32px;
+            background-color: var(--vscode-button-background);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--vscode-button-foreground);
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .refresh-button {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+        .refresh-button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: var(--vscode-tab-inactiveBackground);
+            border-radius: 4px;
+            padding: 3px;
+        }
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        .tab:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
+        .tab.active {
+            background-color: var(--vscode-tab-activeBackground);
+            color: var(--vscode-tab-activeForeground);
+            font-weight: 500;
+        }
+        .insights-summary {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .summary-box {
+            background-color: var(--vscode-editor-background);
+            border-radius: 4px;
+            padding: 15px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .summary-box h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--vscode-descriptionForeground);
+        }
+        .summary-box .count {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .summary-box.high .count {
+            color: var(--vscode-errorForeground);
+        }
+        .summary-box.medium .count {
+            color: var(--vscode-editorWarning-foreground);
+        }
+        .summary-box.low .count {
+            color: var(--vscode-editorInfo-foreground);
+        }
+        .summary-box.total .count {
+            color: var(--vscode-foreground);
+        }
+        .category {
+            margin-bottom: 30px;
+        }
+        .category-header {
+            background-color: var(--vscode-sideBarSectionHeader-background);
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .category-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .category-stats {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .stat {
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .stat.high {
+            background-color: var(--vscode-errorForeground);
+            color: white;
+        }
+        .stat.medium {
+            background-color: var(--vscode-editorWarning-foreground);
+            color: white;
+        }
+        .stat.low {
+            background-color: var(--vscode-editorInfo-foreground);
+            color: white;
+        }
+        .insight {
+            margin-bottom: 15px;
+            background-color: var(--vscode-editor-background);
+            border-radius: 4px;
+            overflow: hidden;
+            border-left: 4px solid transparent;
+        }
+        .insight.high {
+            border-left-color: var(--vscode-errorForeground);
+        }
+        .insight.medium {
+            border-left-color: var(--vscode-editorWarning-foreground);
+        }
+        .insight.low {
+            border-left-color: var(--vscode-editorInfo-foreground);
+        }
+        .insight-header {
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .insight-header:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
+        .insight-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .insight-title .badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .insight-title .badge.high {
+            background-color: var(--vscode-errorForeground);
+            color: white;
+        }
+        .insight-title .badge.medium {
+            background-color: var(--vscode-editorWarning-foreground);
+            color: white;
+        }
+        .insight-title .badge.low {
+            background-color: var(--vscode-editorInfo-foreground);
+            color: white;
+        }
+        .insight-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+            align-items: center;
+        }
+        .insight-meta .confidence {
+            color: var(--vscode-descriptionForeground);
+        }
+        .insight-content {
+            padding: 0 15px 15px;
+            border-top: 1px solid var(--vscode-panel-border);
+            display: none;
+        }
+        .insight-content.expanded {
+            display: block;
+        }
+        .insight-summary {
+            margin-bottom: 15px;
+        }
+        .insight-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .action-button {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .action-button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        .action-button.secondary {
+            background-color: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+        }
+        .action-button.secondary:hover {
+            background-color: var(--vscode-button-secondaryHoverBackground);
+        }
+        .no-insights {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--vscode-descriptionForeground);
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        .icon {
+            font-size: 14px;
+        }
+        .location {
+            color: var(--vscode-textLink-foreground);
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 12px;
+        }
+        .location:hover {
+            text-decoration: none;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .loading-spinner {
+            animation: rotate 1s linear infinite;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--vscode-textLink-foreground);
+            border-radius: 50%;
+            border-top-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <div class="logo">OB</div>
+            <h1>OBEX Insights</h1>
+        </div>
+        <button class="refresh-button" id="refresh-button">
+            <span class="icon">↻</span> Refresh
+        </button>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab ${currentLevel === 'micro' ? 'active' : ''}" data-level="micro">Local Branch (Micro)</div>
+        <div class="tab ${currentLevel === 'meso' ? 'active' : ''}" data-level="meso">Integration (Meso)</div>
+        <div class="tab ${currentLevel === 'macro' ? 'active' : ''}" data-level="macro">Production (Macro)</div>
+    </div>
+    
+    <div class="insights-summary">
+        <div class="summary-box high">
+            <h3>High Severity</h3>
+            <div class="count">${counts.high}</div>
+        </div>
+        <div class="summary-box medium">
+            <h3>Medium Severity</h3>
+            <div class="count">${counts.medium}</div>
+        </div>
+        <div class="summary-box low">
+            <h3>Low Severity</h3>
+            <div class="count">${counts.low}</div>
+        </div>
+        <div class="summary-box total">
+            <h3>Total</h3>
+            <div class="count">${counts.total}</div>
+        </div>
+    </div>
+    
+    <div id="insights-container">
+        ${insights.length === 0 
+            ? '<div class="loading"><div class="loading-spinner"></div></div>' 
+            : filteredInsights.length === 0 
+                ? '<div class="no-insights">No insights available for this level. Everything looks good!</div>'
+                : categoriesHtml}
+    </div>
+    
+    <script>
+        (function() {
+            const vscode = acquireVsCodeApi();
+            
+            // Handle refresh button
+            document.getElementById('refresh-button').addEventListener('click', () => {
+                vscode.postMessage({ command: 'refresh' });
+            });
+            
+            // Handle tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const level = tab.getAttribute('data-level');
+                    vscode.postMessage({ 
+                        command: 'changeLevel',
+                        level: level
+                    });
+                });
+            });
+            
+            // Handle insight header clicks (expand/collapse)
+            document.querySelectorAll('.insight-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    content.classList.toggle('expanded');
+                });
+            });
+            
+            // Handle view explanation buttons
+            document.querySelectorAll('.view-explanation-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering the header click
+                    const insightId = button.getAttribute('data-id');
+                    vscode.postMessage({ 
+                        command: 'viewExplanation',
+                        insightId: insightId
+                    });
+                });
+            });
+            
+            // Handle file location links
+            document.querySelectorAll('.location').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering the header click
+                    const file = link.getAttribute('data-file');
+                    const line = link.getAttribute('data-line');
+                    vscode.postMessage({ 
+                        command: 'openFile',
+                        file: file,
+                        line: parseInt(line)
+                    });
+                });
+            });
+            
+            // Handle fix buttons
+            document.querySelectorAll('.fix-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering the header click
+                    const issueId = button.getAttribute('data-id');
+                    vscode.postMessage({ 
+                        command: 'fixIssue',
+                        issueId: issueId
+                    });
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

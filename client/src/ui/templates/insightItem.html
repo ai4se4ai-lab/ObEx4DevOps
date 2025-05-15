@@ -1,0 +1,38 @@
+<div class="insight ${severity}">
+    <div class="insight-header">
+        <div class="insight-title">
+            <div class="badge ${severity}">${severityInitial}</div>
+            ${title}
+        </div>
+        <div class="insight-meta">
+            <div class="confidence">${confidence}% confidence</div>
+            ${location ? `
+                <div class="location" 
+                     data-file="${location.file}" 
+                     data-line="${location.line}">
+                    ${locationDisplay}
+                </div>
+            ` : ''}
+        </div>
+    </div>
+    <div class="insight-content">
+        <div class="insight-summary">${summary}</div>
+        <div class="insight-actions">
+            <button class="action-button view-explanation-button" data-id="${id}">
+                View Explanation
+            </button>
+            ${fixable ? `
+                <button class="action-button fix-button" data-id="${id}">
+                    Apply Fix
+                </button>
+            ` : ''}
+            ${location ? `
+                <button class="action-button secondary location" 
+                        data-file="${location.file}" 
+                        data-line="${location.line}">
+                    Go to Code
+                </button>
+            ` : ''}
+        </div>
+    </div>
+</div>
